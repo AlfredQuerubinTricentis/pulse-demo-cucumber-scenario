@@ -1,4 +1,23 @@
 # Starter pipeline
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      #!/bin/bash
+      
+      cd "$WORKSPACE/target"
+      
+      logs=$(base64 -w 0 cucumber-report.json)
+      
+      echo -n '{ "testcycle" : 3676826, "result" : "' > payload.json
+      echo -n $logs >> payload.json
+      echo -n '", "projectId" : 127692}' >> payload.json
+      
+      curl -X POST \
+       https://pulse-7.qtestnet.com/webhook/1af0de00-76b6-4dfa-8b6f-ae0f879117ba \
+       -H 'cache-control: no-cache' \
+       -H 'content-type: application/json' \
+       -d @payload.json
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
