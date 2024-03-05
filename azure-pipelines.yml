@@ -1,0 +1,21 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-16.04'
+
+steps:
+- checkout: self
+  persistCredentials: true
+  clean: true
+
+- bash: |
+    curl $BEDROCK_BUILD_SCRIPT > build.sh
+    chmod +x ./build.sh
+  displayName: My script download
+  env:
+    BEDROCK_BUILD_SCRIPT: https://url/yourscript.sh
+
+- task: ShellScript@2
+  displayName: Execute and Deliver cucumber
+  inputs:
