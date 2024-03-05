@@ -1,0 +1,41 @@
+# Maven
+# Build your Java project and run tests with Apache Maven.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.8'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: true
+    testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    goals: 'package'
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      #!/bin/bash
+      
+      cd "$WORKSPACE/target"
+      
+      logs=$(base64 -w 0 cucumber-report.json)
+      
+      echo -n '{ "testcycle" : 4869186, "result" : "' > payload.json
+      echo -n $logs >> payload.json
+      echo -n '", "projectId" : 129672}' >> payload.json
+      
+      curl -X POST \
+       https://pulse-7.qtestnet.com/webhook/1aac2b57-92f5-41eb-aa28-5b9f87be67be \
+       -H 'cache-control: no-cache' \
+       -H 'content-type: application/json' \
+       -d $payload.json
