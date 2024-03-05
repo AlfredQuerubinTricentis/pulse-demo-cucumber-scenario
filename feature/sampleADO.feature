@@ -1,4 +1,4 @@
-Feature:Add Items back to Inventory
+Feature:Add Items back to Inventoryd
   As a store owner,
   I want to add item back to inventory whe they are returned or exchanged,
   sothat I can track inventory.
